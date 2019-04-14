@@ -6,51 +6,67 @@ import './calendar.css';
 import moment from 'moment';
 import {isBz, m2d} from './utils';
 
+const monthFormat = "YYYY-MM-01";
+const months = [ "January", "February", "March", "April",
+            "May", "June", "July", "August", "September",
+            "October", "November", "December" ];
+
 class MacroDateInput extends Component {
 	constructor(props){
 		super(props);
 
-		this.monthFormat = "";
-		var d;
-		if(!props.dateFormat){
-//			this.props.dateFormat = "YYYY-MM-DD";
+		let dateFormat;
+		let date;
+		let baseDate;
+
+		if(props.dateFormat === undefined){
+			dateFormat = "YYYY-MM-DD";
+		}	else {
+			dateFormat  = props.dateFormat;
 		}
 
-		if(props.defaultValue){
-			d = moment(props.defaultValue, this.props.dateFormat);
+		if(props.defaultValue === undefined){
+			date = moment();
 		}	else {
-			d = moment();
+			date = moment(props.defaultValue, props.dateFormat);
 		}
-			//value: moment().format(this.props.dateFormat),
+
+		if(props.baseDate === undefined){
+			baseDate = moment();
+		}	else {
+			baseDate = moment(props.baseDate, props.dateFormat);
+		}
+
 		this.state = {
-			value: moment().format("YYYY-MM-DD"),
+			dateFormat: dateFormat,
+			value: date.format(dateFormat),
 			macro: "",
-			calendar: moment().format("YYYY-MM-01"),
-			open: false
+			calendar: date.format(monthFormat),
+			open: false,
 		};
 	}
 
 	nextMonth(e){
-		var d = moment(this.state.calendar, "YYYY-MM-01");
+		let d = moment(this.state.calendar, monthFormat);
 		d = d.add(1, 'months');
-		this.setState({calendar: d.format("YYYY-MM-01")});
+		this.setState({calendar: d.format(monthFormat)});
 	}
 
 	prevMonth(e){
-		var d = moment(this.state.calendar, "YYYY-MM-01");
+		let d = moment(this.state.calendar, monthFormat);
 		d = d.subtract(1, 'months');
-		this.setState({calendar: d.format("YYYY-MM-01")});
+		this.setState({calendar: d.format(monthFormat)});
 	}
 
 	selectedDate(e){
-		var d = moment(e.currentTarget.id, "YYYY-MM-DD");
-		this.setState({value: d.format("YYYY-MM-DD"),
-									calendar: d.format("YYYY-MM-01"),
+		let d = moment(e.currentTarget.id, this.state.dateFormat);
+		this.setState({value: d.format(this.state.dateFormat),
+									calendar: d.format(monthFormat),
 									macro: ""});
 	}
 
 	monthSelected(e){
-		var v = moment(e.currentTarget.value, "YYYY-MM-01");
+		let v = moment(e.currentTarget.value, monthFormat);
 		this.setState({calendar: e.currentTarget.value});
 	}
 
@@ -59,11 +75,11 @@ class MacroDateInput extends Component {
 	}
 
 	handleInputChange(e){
-		var v = e.target.value;
+		let v = e.target.value;
 		if(typeof(v) === 'string' && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
-			var d = moment(v, "YYYY-MM-DD");
-			this.setState({value: d.format("YYYY-MM-DD"),
-										calendar: d.format("YYYY-MM-01"),
+			let d = moment(v, this.state.dateFormat);
+			this.setState({value: d.format(this.state.dateFormat),
+										calendar: d.format(monthFormat),
 										macro: ""});
 		} else {
 			this.setState({
@@ -74,38 +90,42 @@ class MacroDateInput extends Component {
 
 	handleKeyPress(e){
 		console.log("key:"+e.key);
-		var v = this.state.value;
-		var d;
+		let v = this.state.value;
+		let d;
+		let macro2date = (this.props.macro2date === undefined ? m2d : this.props.macro2date);
+		let isBizDate = (this.props.isBizDate === undefined ? isBz : this.props.isBizDate);
 
 		if(e.key == 'Enter'){
-			d = m2d(v);
+			d = macro2date(v,moment(this.state.baseDate, this.state.defaultFormat),isBizDate);
 			if(moment.isMoment(d)){
-				this.setState({value: d.format("YYYY-MM-DD"),
-											calendar: d.format("YYYY-MM-01"),
+				this.setState({value: d.format(this.state.dateFormat),
+											calendar: d.format(monthFormat),
 											macro: v});
 			} else {
 				this.setState({value: v});
 			}
 		} else if(typeof(v) === 'string' && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
-			d = moment(v, "YYYY-MM-DD");
-				this.setState({value: d.format("YYYY-MM-DD"),
-											calendar: d.format("YYYY-MM-01"),
+			d = moment(v, this.state.dateFormat);
+				this.setState({value: d.format(this.state.dateFormat),
+											calendar: d.format(monthFormat),
 											macro: ""});
 		}
 	}
 
 	handleBlur(e){
-		var v = this.state.value;
-		var d = m2d(v);
+		let macro2date = (this.props.macro2date === undefined ? m2d : this.props.macro2date);
+		let isBizDate = (this.props.isBizDate === undefined ? isBz : this.props.isBizDate);
+		let v = this.state.value;
+		let d = macro2date(v,moment(this.state.baseDate, this.state.defaultFormat),isBizDate);
 
 		if(typeof(v) === 'string' && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
-			d = moment(v, "YYYY-MM-DD");
+			d = moment(v, this.state.dateFormat);
 			v = "";
 		}
 
 		if(moment.isMoment(d)){
-			this.setState({value: d.format("YYYY-MM-DD"),
-										calendar: d.format("YYYY-MM-01"),
+			this.setState({value: d.format(this.state.dateFormat),
+										calendar: d.format(monthFormat),
 										macro: v});
 		} else {
 			this.setState({value: v});
@@ -113,9 +133,9 @@ class MacroDateInput extends Component {
 	}
 
 	renderCalendar(){
-		var control;
-		var header;
-		var date = moment(this.state.calendar, "YYYY-MM-DD");
+		let control;
+		let header;
+		let date = moment(this.state.calendar, this.state.dateFormat);
 
 		header = (
           <div className="header">
@@ -128,48 +148,45 @@ class MacroDateInput extends Component {
             <div className="hcell">Sa</div>
           </div>
 		);
-		var mstr = [ "January", "February", "March", "April",
-            "May", "June", "July", "August", "September",
-            "October", "November", "December" ];
 
-		var dd = [];
-		var sm = date.clone();
+		let mm = [];
+		let sm = date.clone();
 		sm.subtract(3, 'months');
-		for(var i = 0; i < 12; i++){
-			dd[i] = sm.clone();
+		for(let i = 0; i < 12; i++){
+			mm[i] = sm.clone();
 			sm = sm.add(1, 'months');
 		}
-		var opts = dd.map(a => {
-			return (<option value={a.format("YYYY-MM-01")}>{mstr[a.month()] + " " + a.year()}</option>);
+		let opts = mm.map(a => {
+			return (<option value={a.format(monthFormat)}>{months[a.month()] + " " + a.year()}</option>);
 		});
 
-		var days;	
-		var dt = date.startOf('month');
-		var m = dt.month();
+		let days;	
+		let dt = date.startOf('month');
+		let m = dt.month();
 		while(dt.day() != 0){
 			dt = dt.subtract(1, 'days');
 		}
 
-		var dd = [];
-		for(var i = 0; i < (7*6); i++){
+		let dd = [];
+		for(let i = 0; i < (7*6); i++){
 			dd[i] = dt.clone();
 			dt.add(1, 'days');
 		}
 
 		days = dd.map(d => {
-			var cls = "rcell";
+			let cls = "rcell";
 			if(!isBz(d)){
 				cls += " off";
 			}
 			if(m != d.month()){
 				cls += " not-this-month";
 			}
-			if(d.format("YYYY-MM-DD") === this.state.value) {
+			if(d.format(this.state.dateFormat) === this.state.value) {
 				cls += " selected-date";
 			}
-			return (<div className={cls} id={d.format("YYYY-MM-DD")} onClick={this.selectedDate.bind(this)}>{d.format("D")}</div>);
+			return (<div className={cls} id={d.format(this.state.dateFormat)} onClick={this.selectedDate.bind(this)}>{d.format("D")}</div>);
 		});
-		var thisMonth = this.state.calendar;
+		let thisMonth = this.state.calendar;
 	
 		return (
 				<div className="calender" id="calendar">
@@ -211,8 +228,8 @@ class MacroDateInput extends Component {
 	}
 
   render() {
-		var dateInput;
-		var calendar;
+		let dateInput;
+		let calendar;
 	
 		dateInput = this.renderDateInput();
 		if(this.state.open){

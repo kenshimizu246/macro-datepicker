@@ -1,136 +1,127 @@
 import moment from 'moment';
 
+const WEEKS = ["na","mo","tu","we","th","fr","st","su"];
+
+/**
+ * This is date adjustment function.
+ * 
+ * @param a date to be determine whether bisiness date or not.
+ * @return the result must be true or false.
+ **/
 export const isBz = (v) => {
-	var fmt = "MM/DD/YYYY";
-	var holidays = {};
-	holidays["01/01/2019"] = moment("01/01/2019", fmt);
-	holidays["01/14/2019"] = moment("01/14/2019", fmt);
-	holidays["02/11/2019"] = moment("02/11/2019", fmt);
-	holidays["03/21/2019"] = moment("03/21/2019", fmt);
-	holidays["04/29/2019"] = moment("04/29/2019", fmt);
-	holidays["04/30/2019"] = moment("04/30/2019", fmt);
-	holidays["05/01/2019"] = moment("05/01/2019", fmt);
-	holidays["05/02/2019"] = moment("05/02/2019", fmt);
-	holidays["05/03/2019"] = moment("05/03/2019", fmt);
-	holidays["05/06/2019"] = moment("05/06/2019", fmt);
-	holidays["07/15/2019"] = moment("07/15/2019", fmt);
-	holidays["08/12/2019"] = moment("08/12/2019", fmt);
-	holidays["09/16/2019"] = moment("09/16/2019", fmt);
-	holidays["09/23/2019"] = moment("09/23/2019", fmt);
-	holidays["10/14/2019"] = moment("10/14/2019", fmt);
-	holidays["10/22/2019"] = moment("10/22/2019", fmt);
-	holidays["11/04/2019"] = moment("11/04/2019", fmt);
-	holidays["11/23/2019"] = moment("11/23/2019", fmt);
+	const fmt = "MM/DD/YYYY";
 
 	if(moment.isMoment(v)){
 		if(v.isoWeekday() === 7 || v.isoWeekday() === 6){
-			return false;
-		}
-		if(holidays[v.format(fmt)]){
 			return false;
 		}
 	}
 	return true;
 }
 
-/***
-Macro
+/**
+ * This is date adjustment function.
+ * 
+ * @param a date to be determine whether bisiness date or not.
+ * @param test function whether a date is bisiness date or not.
+ * @return calculated date if it contains a macro.
+ **/
+const dtAdj = (d,isBizDate) => {
+	const m = d.month();
+	const o = d.clone();
 
-5d : 5 days and next day if holiday
-5bd : 5 biz days
-5m : 5 months and next day if holiday
-eom : end of month
+	while(!isBizDate(d)){
+		d.add(1, "d");
+	}
+	if(m != d.month()){
+		d = o;
+		while(!isBizDate(d)){
+			d.subtract(1, "d");
+		}
+	}
+	return d;
+}
 
-***/
-export const m2d = (v) => {
-	var weeks = ["na","mo","tu","we","th","fr","st","su"];
+/**
+ * This function resolves a macro if it contains, for example; 
+ * 	2d -> 2 days
+ * 	2bd -> 2 bisiness days
+ * 	2m -> the month after next month
+ * 	2m2tu -> the second Tuesday of the month after next month
+ * 	2m2 -> the second day of the month after next month
+ * 	1m31 -> the last day of the next month
+ * 
+ * Also it accepts noAdj option. The default behavior is it escapes holidays, Saturday or Sunday.
+ * This option disable this default behavior. For example, "2m2tu noAdj".
+ * 
+ * @param value it is possible to contain macro.
+ * @param base date  
+ * @param isBizDate calculator  
+ * @return calculated date if it contains a macro.
+ **/
+export const m2d = (v,t,isBizDate) => {
 	if(typeof(v) === 'string'){
-		if(v.match(/^\d+m$/i)){
-			var n = Number(v.match(/^\d+/));
-			var t = moment();
-			t = t.add(n, "M");
-			var m = t.month();
-
-			while(!isBz(t)){
-				t = t.add(1, "d");
-			}
-			if(m != t.month()){
-				t = moment().add(n, "M");
-				while(!isBz(t)){
-					t = t.subtract(1, "d");
-				}
-			}
-			return t;
-		} else if(v.match(/^\d+d$/i)){
-			var n = Number(v.match(/^\d+/));
-			var t = moment();
+		let adj = true;
+		if(v.match(/noAdj/i)){
+			adj = false;
+		}
+		if(v.match(/^\d+d/i)){
+			const n = Number(v.match(/^\d+/));
 			t.add(Number(n), "d");
-			while(!isBz(t)){
+			while(adj && !isBizDate(t)){
 				t.add(1, "d");
 			}
 			return t;
-		} else if(v.match(/^\d+bd$/i)){
-			var n = Number(v.match(/^\d+/));
-			var t = moment();
-			var i = 0;
+		} else if(v.match(/^\d+bd/i)){
+			const n = Number(v.match(/^\d+/));
+			let i = 0;
 
 			while(i < n){
-				t = t.add(1, "d");
-				if(isBz(t)){
+				t.add(1, "d");
+				if(isBizDate(t)){
 					i++;
-				}
-			}
-			return t;
-		} else if(v.match(/^\d+m\d+$/i)){
-			var n = Number(v.match(/^\d+/));
-			var d = v.match(/\d+$/);
-			var t = moment();
-			t = t.add(n, "M");
-			t = moment(t.format("YYYY-MM-")+d, "YYYY-MM-DD");
-			var m = t.month();
-
-			while(!isBz(t)){
-				t = t.add(1, "d");
-			}
-			if(m != t.month()){
-				t = moment().add(n, "M");
-				while(!isBz(t)){
-					t = t.subtract(1, "d");
-				}
-			}
-			return t;
-		} else if(v.match(/^\d+m\d\w{2,3}$/i)){
-			var n = Number(v.match(/^\d+/));
-			var w = v.match(/\d+\w{2,3}$/); //su,mo,tu,we,th,fr,st
-			var t = moment();
-			t = t.add(n, "M");
-			t = moment(t.format("YYYY-MM-01"), "YYYY-MM-DD");
-			var m = t.month();
-
-			var f = weeks[t.isoWeekday()];
-			var i = 0;
-
-			for(var k = 1; k <= 31; k++){
-				if(weeks[t.isoWeekday()] === f){
-					i++;
-				}
-				if(w == (i+weeks[t.isoWeekday()])){
-					break;
-				}
-				t = t.add(1, "d");
-			}
-
-			while(!isBz(t)){
-				t = t.add(1, "d");
-			}
-			if(m != t.month()){
-				t = moment().add(n, "M");
-				while(!isBz(t)){
-					t = t.subtract(1, "d");
 				}
 			}
 			return t;
 		}
+
+		if(v.match(/^\d+m/i)){
+			const n = Number(v.match(/^\d+/));
+			t = t.add(n, "M");
+		}
+
+		const ww = v.match(/\d+(su|mo|tu|we|th|fr|st)/i);
+		if(ww !== null){
+			const w = ww[0];
+			let s = moment(t.format("YYYY-MM-01"), "YYYY-MM-DD");
+
+			// weekday for first day of month to count weekday.
+			const f = WEEKS[s.isoWeekday()];
+			const m = t.month();
+			for(let i = 0; i <= 5;){
+				if(WEEKS[s.isoWeekday()] === f){
+					i++;
+				}
+				if(w == (i+WEEKS[s.isoWeekday()])){
+					t = s;
+					break;
+				}
+				s.add(1, "d");
+			}
+		} else if(v.match(/^\d+m\d+$/i)){
+			for(let n = v.match(/\d+$/); n > 0; n--){
+				let s = moment(t.format("YYYY-MM-")+n, "YYYY-MM-DD");
+				if(moment.isMoment(s) && s.isValid()){
+						t = s;
+						break;
+				}
+			}
+		}
+
+		if(adj) {
+			t = dtAdj(t,isBizDate);
+		}
+		return t;
 	}
 	return v;
 }
