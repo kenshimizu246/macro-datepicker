@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import larrow from './left-arrow.svg';
 import rarrow from './right-arrow.svg';
-import './calendar.css';
+import './calender.css';
 
 import moment from 'moment';
 import {isBz, m2d} from './utils';
@@ -41,33 +41,33 @@ class MacroDateInput extends Component {
 			dateFormat: dateFormat,
 			value: date.format(dateFormat),
 			macro: "",
-			calendar: date.format(monthFormat),
+			calender: date.format(monthFormat),
 			open: false,
 		};
 	}
 
 	nextMonth(e){
-		let d = moment(this.state.calendar, monthFormat);
+		let d = moment(this.state.calender, monthFormat);
 		d = d.add(1, 'months');
-		this.setState({calendar: d.format(monthFormat)});
+		this.setState({calender: d.format(monthFormat)});
 	}
 
 	prevMonth(e){
-		let d = moment(this.state.calendar, monthFormat);
+		let d = moment(this.state.calender, monthFormat);
 		d = d.subtract(1, 'months');
-		this.setState({calendar: d.format(monthFormat)});
+		this.setState({calender: d.format(monthFormat)});
 	}
 
 	selectedDate(e){
 		let d = moment(e.currentTarget.id, this.state.dateFormat);
 		this.setState({value: d.format(this.state.dateFormat),
-									calendar: d.format(monthFormat),
+									calender: d.format(monthFormat),
 									macro: ""});
 	}
 
 	monthSelected(e){
 		let v = moment(e.currentTarget.value, monthFormat);
-		this.setState({calendar: e.currentTarget.value});
+		this.setState({calender: e.currentTarget.value});
 	}
 
 	doClickCalendar(){
@@ -79,7 +79,7 @@ class MacroDateInput extends Component {
 		if(typeof(v) === 'string' && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
 			let d = moment(v, this.state.dateFormat);
 			this.setState({value: d.format(this.state.dateFormat),
-										calendar: d.format(monthFormat),
+										calender: d.format(monthFormat),
 										macro: ""});
 		} else {
 			this.setState({
@@ -99,7 +99,7 @@ class MacroDateInput extends Component {
 			d = macro2date(v,moment(this.state.baseDate, this.state.defaultFormat),isBizDate);
 			if(moment.isMoment(d)){
 				this.setState({value: d.format(this.state.dateFormat),
-											calendar: d.format(monthFormat),
+											calender: d.format(monthFormat),
 											macro: v});
 			} else {
 				this.setState({value: v});
@@ -107,7 +107,7 @@ class MacroDateInput extends Component {
 		} else if(typeof(v) === 'string' && v.match(/^\d{4}-\d{2}-\d{2}$/)) {
 			d = moment(v, this.state.dateFormat);
 				this.setState({value: d.format(this.state.dateFormat),
-											calendar: d.format(monthFormat),
+											calender: d.format(monthFormat),
 											macro: ""});
 		}
 	}
@@ -125,7 +125,7 @@ class MacroDateInput extends Component {
 
 		if(moment.isMoment(d)){
 			this.setState({value: d.format(this.state.dateFormat),
-										calendar: d.format(monthFormat),
+										calender: d.format(monthFormat),
 										macro: v});
 		} else {
 			this.setState({value: v});
@@ -135,7 +135,7 @@ class MacroDateInput extends Component {
 	renderCalendar(){
 		let control;
 		let header;
-		let date = moment(this.state.calendar, this.state.dateFormat);
+		let date = moment(this.state.calender, this.state.dateFormat);
 
 		header = (
           <div className="header">
@@ -186,10 +186,10 @@ class MacroDateInput extends Component {
 			}
 			return (<div className={cls} id={d.format(this.state.dateFormat)} onClick={this.selectedDate.bind(this)}>{d.format("D")}</div>);
 		});
-		let thisMonth = this.state.calendar;
+		let thisMonth = this.state.calender;
 	
 		return (
-				<div className="calender" id="calendar">
+				<div className="calender" id="calender">
 					<div className="control">
 						<div className="button-prev" onClick={this.prevMonth.bind(this)}><img src={larrow} className="arrow" alt="previous month" /></div>
 						<select name="select-month" value={thisMonth} onChange={this.monthSelected.bind(this)}>
@@ -229,16 +229,16 @@ class MacroDateInput extends Component {
 
   render() {
 		let dateInput;
-		let calendar;
+		let calender;
 	
 		dateInput = this.renderDateInput();
 		if(this.state.open){
-			calendar = this.renderCalendar();
+			calender = this.renderCalendar();
 		}
 		return (
 			<div className="calender-input-field">
 				{dateInput}
-				{calendar}
+				{calender}
 			</div>
 		);
 	}
