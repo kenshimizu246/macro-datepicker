@@ -38,8 +38,9 @@ const isBz = (v) => {
 	return true;
 }
 
+const descr = (<div>ken's test</div>);
 
-ReactDOM.render(<MacroDateInput isBizDate={isBz}/>, document.getElementById('root'));
+ReactDOM.render(<div><div><MacroDateInput isBizDate={isBz}/></div>{descr}</div>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
