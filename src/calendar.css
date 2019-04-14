@@ -1,8 +1,5 @@
-.calendar-input-field {
+.calender-input-field {
   display: inline-block;
-	position: absolute;
-	top: 10px;
-	left: 10px;
 }
 
 .arrow {
@@ -14,7 +11,7 @@
 }
 
 .img_cal {
-	fill: red;
+	fill: navy;
 	width: 21px;
 	height: 21px;
 }
@@ -44,15 +41,17 @@
 .button-open {
   display: inline-block;
   cursor: pointer;
-	background-color: red;
+	background-color: navy;
 	height: 21px;
 	width: 21px;
 }
 
 .calender {
-	/* visibility: hidden; */
-	visibility: visible;
+	position: absolute;
 	width: 160px;
+	z-index: 10;
+	background-color: white;
+	border: 1px;
 }
 
 .calender-show {

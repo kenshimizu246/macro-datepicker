@@ -236,7 +236,7 @@ class MacroDateInput extends Component {
 			calendar = this.renderCalendar();
 		}
 		return (
-			<div className="calendar-input-field">
+			<div className="calender-input-field">
 				{dateInput}
 				{calendar}
 			</div>

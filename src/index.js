@@ -38,9 +38,22 @@ const isBz = (v) => {
 	return true;
 }
 
-const descr = (<div>ken's test</div>);
+const title = (<div className="title">Macro Date Input</div>);
+const sample = (<div className="sample"><MacroDateInput isBizDate={isBz}/></div>);
+const descr = (<div className="descr">
+This function resolves a macro if it contains, for example;
+<li>2d -> 2 days</li>
+<li>2bd -> 2 bisiness days</li>
+<li>2m -> the month after next month</li>
+<li>2m2tu -> the second Tuesday of the month after next month</li>
+<li>2m2 -> the second day of the month after next month</li>
+<li>1m31 -> the last day of the next month</li>
 
-ReactDOM.render(<div><div><MacroDateInput isBizDate={isBz}/></div>{descr}</div>, document.getElementById('root'));
+Also it accepts noAdj option. The default behavior is it escapes holidays, Saturday or Sunday.
+This option disable this default behavior. For example, "2m2tu noAdj".
+</div>);
+
+ReactDOM.render(<div className="main">{title}{sample}{descr}</div>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
