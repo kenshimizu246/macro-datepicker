@@ -136,6 +136,7 @@ class MacroDateInput extends Component {
 		let control;
 		let header;
 		let date = moment(this.state.calender, this.state.dateFormat);
+		let isBizDate = (this.props.isBizDate === undefined ? isBz : this.props.isBizDate);
 
 		header = (
           <div className="header">
@@ -175,7 +176,7 @@ class MacroDateInput extends Component {
 
 		days = dd.map(d => {
 			let cls = "rcell";
-			if(!isBz(d)){
+			if(!isBizDate(d)){
 				cls += " off";
 			}
 			if(m != d.month()){
