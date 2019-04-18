@@ -1,5 +1,5 @@
-# rc-macro-date-input
-MacroDateInput is a input field with a date picker calendar but it enables macro to calculate a date as following rule.
+# macro-datepicker
+MacroDateInput is a date picker input with supporting a macro to calculate a date as following rule.
 
 1d -> next day, 2d -> the day after tomorrow.
 1bd -> next business day, 2bd -> the business day after next business day.
