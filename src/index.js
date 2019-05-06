@@ -39,7 +39,7 @@ const isBz = (v) => {
 }
 
 const title = (<div className="title">Macro Date Input</div>);
-const sample = (<div className="sample"><MacroDateInput isBizDate={isBz}/></div>);
+const sample = (<div className="sample"><MacroDateInput isBizDate={isBz} defaultValue="04/15/2019" baseDate="04/15/2019" /></div>);
 const descr = (<div className="descr">
 This function resolves a macro if it contains, for example;
 <li>2d -> 2 days</li>

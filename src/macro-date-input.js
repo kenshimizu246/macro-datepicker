@@ -40,6 +40,7 @@ class MacroDateInput extends Component {
 		this.state = {
 			dateFormat: dateFormat,
 			value: date.format(dateFormat),
+			baseDate: baseDate.format(dateFormat),
 			macro: "",
 			calender: date.format(monthFormat),
 			open: false,

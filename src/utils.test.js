@@ -159,6 +159,16 @@ test('m2d.2we', () => {
 	expect(result.format()).toBe(expected.format());
 });
 
+test('m2d.3m2su', () => {
+	MockDate.set('04/15/2019');
+	let result = m2d("3m2su", moment(), isBzJp);
+	let expected = moment("07/16/2019", "MM/DD/YYYY");
+	expected = t2zero(expected);
+	expect(result.format()).toBe(expected.format());
+});
+
+
+
 
 
 
